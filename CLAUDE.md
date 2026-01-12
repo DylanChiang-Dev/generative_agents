@@ -47,8 +47,6 @@ Fork from these when starting:
   ```
 - **Test API Connection**: `python3 reverie/backend_server/test.py`
 
-**Important**: `gpt_structure.py` has hardcoded model names (`gpt-3.5-turbo`, `gpt-4`) in several functions. These do NOT use `model_id` from `utils.py`. To use a custom provider, update functions like `ChatGPT_request()`, `GPT4_request()`, and `ChatGPT_single_request()` in `persona/prompt_template/gpt_structure.py`.
-
 ## Architecture
 
 This project simulates "Generative Agents" using a dual-server architecture:

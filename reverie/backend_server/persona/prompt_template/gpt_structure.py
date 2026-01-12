@@ -12,15 +12,16 @@ import time
 from utils import *
 
 openai.api_key = openai_api_key
+openai.api_base = openai_api_base
 
 def temp_sleep(seconds=0.1):
   time.sleep(seconds)
 
-def ChatGPT_single_request(prompt): 
+def ChatGPT_single_request(prompt):
   temp_sleep()
 
   completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+    model=model_id,
     messages=[{"role": "user", "content": prompt}]
   )
   return completion["choices"][0]["message"]["content"]
@@ -30,53 +31,53 @@ def ChatGPT_single_request(prompt):
 # #####################[SECTION 1: CHATGPT-3 STRUCTURE] ######################
 # ============================================================================
 
-def GPT4_request(prompt): 
+def GPT4_request(prompt):
   """
   Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
+  server and returns the response.
   ARGS:
     prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
+    gpt_parameter: a python dictionary with the keys indicating the names of
+                   the parameter and the values indicating the parameter
+                   values.
+  RETURNS:
+    a str of GPT-3's response.
   """
   temp_sleep()
 
-  try: 
+  try:
     completion = openai.ChatCompletion.create(
-    model="gpt-4", 
+    model=model_id,
     messages=[{"role": "user", "content": prompt}]
     )
     return completion["choices"][0]["message"]["content"]
-  
-  except: 
+
+  except:
     print ("ChatGPT ERROR")
     return "ChatGPT ERROR"
 
 
-def ChatGPT_request(prompt): 
+def ChatGPT_request(prompt):
   """
   Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
+  server and returns the response.
   ARGS:
     prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
+    gpt_parameter: a python dictionary with the keys indicating the names of
+                   the parameter and the values indicating the parameter
+                   values.
+  RETURNS:
+    a str of GPT-3's response.
   """
   # temp_sleep()
-  try: 
+  try:
     completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
+    model=model_id,
     messages=[{"role": "user", "content": prompt}]
     )
     return completion["choices"][0]["message"]["content"]
-  
-  except: 
+
+  except:
     print ("ChatGPT ERROR")
     return "ChatGPT ERROR"
 
@@ -194,23 +195,23 @@ def ChatGPT_safe_generate_response_OLD(prompt,
 # ###################[SECTION 2: ORIGINAL GPT-3 STRUCTURE] ###################
 # ============================================================================
 
-def GPT_request(prompt, gpt_parameter): 
+def GPT_request(prompt, gpt_parameter):
   """
   Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
+  server and returns the response.
   ARGS:
     prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
+    gpt_parameter: a python dictionary with the keys indicating the names of
+                   the parameter and the values indicating the parameter
+                   values.
+  RETURNS:
+    a str of GPT-3's response.
   """
   temp_sleep()
-  try: 
-    response = openai.Completion.create(
-                model=gpt_parameter["engine"],
-                prompt=prompt,
+  try:
+    response = openai.ChatCompletion.create(
+                model=model_id,
+                messages=[{"role": "user", "content": prompt}],
                 temperature=gpt_parameter["temperature"],
                 max_tokens=gpt_parameter["max_tokens"],
                 top_p=gpt_parameter["top_p"],
@@ -218,8 +219,9 @@ def GPT_request(prompt, gpt_parameter):
                 presence_penalty=gpt_parameter["presence_penalty"],
                 stream=gpt_parameter["stream"],
                 stop=gpt_parameter["stop"],)
-    return response.choices[0].text
-  except: 
+    return response["choices"][0]["message"]["content"]
+  except Exception as e:
+    print (f"An error occurred: {e}")
     print ("TOKEN LIMIT EXCEEDED")
     return "TOKEN LIMIT EXCEEDED"
 
@@ -273,16 +275,51 @@ def safe_generate_response(prompt,
   return fail_safe_response
 
 
-def get_embedding(text, model="text-embedding-ada-002"):
+import requests
+
+def get_embedding(text):
   text = text.replace("\n", " ")
-  if not text: 
+  if not text:
     text = "this is blank"
-  return openai.Embedding.create(
-          input=[text], model=model)['data'][0]['embedding']
+
+  url = "https://ark.cn-beijing.volces.com/api/v3/embeddings/multimodal"
+  headers = {
+      "Content-Type": "application/json",
+      "Authorization": f"Bearer {openai_api_key}"
+  }
+  payload = {
+      "model": embedding_model_id,
+      "input": [
+          {
+              "type": "text",
+              "text": text
+          }
+      ]
+  }
+
+  try:
+      response = requests.post(url, headers=headers, data=json.dumps(payload))
+      if response.status_code == 200:
+          resp_json = response.json()
+          # Volcengine multimodal embedding returns data as a dict with 'embedding' key
+          if isinstance(resp_json['data'], dict) and 'embedding' in resp_json['data']:
+              return resp_json['data']['embedding']
+          # Fallback for standard OpenAI format (list of objects)
+          elif isinstance(resp_json['data'], list) and len(resp_json['data']) > 0:
+              return resp_json['data'][0]['embedding']
+          else:
+              print(f"Embedding format error: {resp_json}")
+              return None
+      else:
+          print(f"Embedding Error: {response.text}")
+          return None
+  except Exception as e:
+      print(f"Embedding Exception: {e}")
+      return None
 
 
 if __name__ == '__main__':
-  gpt_parameter = {"engine": "text-davinci-003", "max_tokens": 50, 
+  gpt_parameter = {"max_tokens": 50, 
                    "temperature": 0, "top_p": 1, "stream": False,
                    "frequency_penalty": 0, "presence_penalty": 0, 
                    "stop": ['"']}

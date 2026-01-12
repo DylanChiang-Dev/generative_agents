@@ -12,6 +12,62 @@
 - **後端模擬伺服器**：Python 程式，驅動代理人的認知模組與行為邏輯
 - **LLM 整合**：支援 OpenAI API 相容的語言模型服務（目前配置為 Doubao/火山引擎）
 
+---
+
+## 🔧 API 遷移記錄：OpenAI → 火山引擎 (Volcengine)
+
+本專案已完成從 OpenAI API 到火山引擎 (Volcengine) Doubao 模型的完整遷移。
+
+### 遷移內容
+
+| 項目 | 原設定 | 新設定 |
+|------|--------|--------|
+| API Base URL | `api.openai.com` | `ark.cn-beijing.volces.com/api/v3` |
+| Chat 模型 | `gpt-3.5-turbo` / `gpt-4` | `doubao-seed-1-8-251228` |
+| Embedding 模型 | `text-embedding-ada-002` | `ep-xxxxxxxx` (Doubao-embedding-vision) |
+| Embedding 端點 | `/v1/embeddings` | `/api/v3/embeddings/multimodal` |
+
+### 修改的檔案
+
+1. **`reverie/backend_server/utils.py`** - API 設定檔
+   - `openai_api_key`: 火山引擎 API Key
+   - `openai_api_base`: 火山引擎 API Base URL
+   - `model_id`: Chat 模型 ID
+   - `embedding_model_id`: Embedding 模型 Endpoint ID
+
+2. **`reverie/backend_server/persona/prompt_template/gpt_structure.py`** - 核心 API 呼叫
+   - `ChatGPT_request()`, `GPT4_request()`, `ChatGPT_single_request()`: 使用 `model_id` 變數
+   - `GPT_request()`: 使用 `model_id` 變數，忽略舊的 `engine` 參數
+   - `get_embedding()`: 重寫為使用 `requests` 直接呼叫火山引擎 multimodal embedding API
+
+3. **`reverie/backend_server/persona/prompt_template/run_gpt_prompt.py`** - 移除所有硬編碼 `engine` 參數
+
+4. **`reverie/backend_server/test.py`** - 測試腳本更新
+
+### 已刪除的檔案
+
+- `reverie/backend_server/persona/prompt_template/defunct_run_gpt_prompt.py` - 廢棄的舊版程式碼
+
+### 設定您自己的 API
+
+編輯 `reverie/backend_server/utils.py`：
+
+```python
+# API Configuration for Volcengine (Doubao)
+openai_api_key = "your-volcengine-api-key"
+openai_api_base = "https://ark.cn-beijing.volces.com/api/v3"
+model_id = "doubao-seed-1-8-251228"  # 或您的模型 ID
+embedding_model_id = "ep-xxxxxxxx"   # 您的 Embedding Endpoint ID
+```
+
+### 測試 API 連線
+
+```bash
+python3 reverie/backend_server/test.py
+```
+
+---
+
 ## 快速開始
 
 ### 環境設置
