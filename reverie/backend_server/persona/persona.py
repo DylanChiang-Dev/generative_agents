@@ -15,6 +15,7 @@ import random
 sys.path.append('../')
 
 from global_methods import *
+from rag.rag_interface import RAGSystem
 
 from persona.memory_structures.spatial_memory import *
 from persona.memory_structures.associative_memory import *
@@ -270,3 +271,17 @@ class Persona:
 
 
 
+
+  def check_legal_context(self, current_thought):
+    """
+    Check if the current thought contains legal keywords and retrieve context if so.
+    """
+    keywords = ["婚姻", "离婚", "财产", "抚养", "收养", "夫妻", "子女"]
+    for kw in keywords:
+      if kw in current_thought:
+        print(f"[RAG Triggered] Found keyword: {kw}")
+        results = RAGSystem.query(current_thought, k=2)
+        if results:
+          context = "\n".join([f"- {r['text']}" for r in results])
+          return context
+    return None
