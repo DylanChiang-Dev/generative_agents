@@ -1,6 +1,49 @@
+# 生成式代理人模擬專案 - 作業展示
 
+本專案為課程作業展示用途，基於史丹佛大學的 Generative Agents 研究專案進行部署與測試。
 
-# Generative Agents: Interactive Simulacra of Human Behavior 
+## 專案說明
+
+本專案展示了如何使用大型語言模型（LLM）驅動的生成式代理人，模擬具有可信人類行為的虛擬角色。代理人能夠進行日常活動規劃、社交互動、記憶形成與反思等認知行為。
+
+## 技術架構
+
+- **前端環境伺服器**：Django 網頁應用程式，負責視覺化呈現與環境狀態管理
+- **後端模擬伺服器**：Python 程式，驅動代理人的認知模組與行為邏輯
+- **LLM 整合**：支援 OpenAI API 相容的語言模型服務（目前配置為 Doubao/火山引擎）
+
+## 快速開始
+
+### 環境設置
+```bash
+pip install -r requirements.txt
+```
+
+### 啟動伺服器
+需同時執行兩個伺服器：
+
+1. 環境伺服器：
+```bash
+cd environment/frontend_server
+python3 manage.py runserver
+```
+
+2. 模擬伺服器：
+```bash
+cd reverie/backend_server
+python3 reverie.py
+```
+
+### API 設定
+編輯 `reverie/backend_server/utils.py` 設定您的 API 金鑰與端點。
+
+---
+
+# 以下為原專案說明文件
+
+---
+
+# Generative Agents: Interactive Simulacra of Human Behavior
 
 <p align="center" width="100%">
 <img src="cover.png" alt="Smallville" style="width: 80%; min-width: 300px; display: block; margin: auto;">
