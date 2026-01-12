@@ -92,7 +92,7 @@ python3 reverie/backend_server/test.py
 
 ## 🧠 RAG 系統實現 (Retrieval-Augmented Generation)
 
-本專案計劃實現一個完整的 RAG 系統，展示檢索增強生成的核心技術能力。
+本專案已實現一個完整的 RAG 系統，展示檢索增強生成的核心技術能力。
 
 ### RAG 系統架構
 
@@ -123,15 +123,42 @@ python3 reverie/backend_server/test.py
 
 ### 實現模組
 
-| 模組 | 功能 | 展示的技術能力 |
-|------|------|----------------|
-| `chunker.py` | 將文本切分成段落 | 文本預處理、分塊策略 (固定大小/語義分塊) |
-| `indexer.py` | 調用 `get_embedding()` 向量化 | Embedding 模型整合 |
-| `vector_store.py` | 存儲向量與原文映射 | 向量索引設計與持久化 |
-| `retriever.py` | 餘弦相似度檢索 Top-K | 向量檢索算法實現 |
-| `rag_pipeline.py` | 將檢索結果注入 prompt | Prompt Engineering |
+| 模組 | 檔案位置 | 功能 | 展示的技術能力 |
+|------|----------|------|----------------|
+| **Chunker** | `rag/chunker.py` | 將文本切分成段落 | 文本預處理、分塊策略 (固定大小/句子/段落) |
+| **Indexer** | `rag/indexer.py` | 調用 Embedding API 建立索引 | Embedding 模型整合、批量處理 |
+| **Vector Store** | `rag/vector_store.py` | 存儲向量與原文映射 | 向量索引設計與持久化 (JSON) |
+| **Retriever** | `rag/retriever.py` | 餘弦相似度檢索 Top-K | 向量檢索算法實現 (NumPy) |
+| **Interface** | `rag/rag_interface.py` | 統一調用接口 | 單例模式、系統整合 |
+| **Integration** | `persona/persona.py` | Agent 關鍵詞觸發 | 認知模組整合 |
 
-### 核心技術實現
+### 系統驗證
+
+已通過自動化測試腳本驗證系統功能：
+
+**1. 法律知識檢索**
+```text
+Query: 离婚时财产如何分割？
+[1] Score: 0.6190
+    內容: ...夫妻共同财产...继承或者受赠的财产...
+[2] Score: 0.4279
+    內容: ...婚姻家庭一般规定...
+```
+
+**2. Agent 關鍵詞觸發**
+- 當 Agent 思考內容包含「婚姻」、「离婚」、「财产」、「抚养」等關鍵詞時，自動觸發 RAG。
+- 檢索到的法律條文會注入到 Agent 的 Context 中，輔助決策。
+
+### 如何測試
+
+本專案包含一個端到端的測試腳本，可用於驗證 RAG 系統狀態：
+
+```bash
+# 運行 RAG 測試腳本
+python3 reverie/backend_server/rag/test_rag_demo.py
+```
+
+### 核心技術實現細節
 
 #### 1. 文本分塊 (Chunking)
 ```python
@@ -148,74 +175,38 @@ def chunk_text(text: str, chunk_size: int = 512, overlap: int = 50) -> List[str]
 def get_embedding(text: str) -> List[float]:
     """
     調用火山引擎 Embedding API 將文本轉換為向量
-    返回: 高維向量 (例如 1536 維)
+    返回: 高維向量
     """
 ```
 
 #### 3. 向量存儲 (Vector Store)
-```python
-class VectorStore:
-    def __init__(self):
-        self.vectors = []      # 向量列表
-        self.documents = []    # 原文對應
-        self.metadata = []     # 元資料 (來源、分塊索引等)
-
-    def add(self, text: str, embedding: List[float], metadata: dict)
-    def save(self, path: str)  # 持久化到 JSON/NumPy
-    def load(self, path: str)
-```
+使用輕量級 JSON 實現，無需額外數據庫依賴，方便部署與教學展示。
 
 #### 4. 相似度檢索 (Retrieval)
 ```python
-def cosine_similarity(vec_a: np.array, vec_b: np.array) -> float:
-    """餘弦相似度計算"""
-    return np.dot(vec_a, vec_b) / (np.linalg.norm(vec_a) * np.linalg.norm(vec_b))
-
-def retrieve(query: str, top_k: int = 3) -> List[Document]:
-    """
-    1. 將 query 向量化
-    2. 計算與所有文檔向量的相似度
-    3. 返回相似度最高的 top_k 個文檔
-    """
-```
-
-#### 5. RAG Prompt 組裝
-```python
-def build_rag_prompt(query: str, retrieved_docs: List[str]) -> str:
-    context = "\n\n".join(retrieved_docs)
-    return f"""根據以下參考資料回答問題：
-
-參考資料：
-{context}
-
-問題：{query}
-
-請基於參考資料提供準確的回答："""
+def retrieve(query: str, k: int = 3):
+    # 1. Query 向量化
+    # 2. 計算 Cosine Similarity
+    # 3. 排序並返回 Top-K
 ```
 
 ### 與現有專案的整合
 
-本專案的 Generative Agents 已使用 Embedding 進行記憶檢索：
+本專案的 Generative Agents 已使用 Embedding 進行記憶檢索。RAG 系統復用了 `gpt_structure.py` 中的 `get_embedding` 函數，確保資源利用效率。
 
-```python
-# 現有程式碼位置：reverie/backend_server/persona/prompt_template/gpt_structure.py
-def get_embedding(text):
-    """已實現的 Embedding API 調用"""
-```
-
-RAG 系統將復用此 Embedding 函數，擴展為完整的檢索增強生成流程。
+在 `Persona` 類中新增了 `check_legal_context` 方法，使 Agent 具備主動查詢法律知識的能力。
 
 ### 自建 RAG vs 使用現成庫
 
 | 方面 | 自建實現 (本專案) | 使用 ChromaDB/LangChain |
 |------|------------------|-------------------------|
 | Embedding 調用 | ✅ 自己調用 | ✅ 自己調用 |
-| 向量存儲 | ✅ 自己實現 | ❌ 庫封裝 |
-| 相似度計算 | ✅ 自己實現 | ❌ 庫封裝 |
+| 向量存儲 | ✅ 自己實現 (JSON) | ❌ 庫封裝 |
+| 相似度計算 | ✅ 自己實現 (NumPy) | ❌ 庫封裝 |
 | 展示底層原理 | ✅ 完整展示 | ⚠️ 部分隱藏 |
-| 學習價值 | ✅ 深入理解 | ⚠️ 黑盒使用 |
+| 依賴複雜度 | ✅ 低 (僅 NumPy) | ⚠️ 高 |
 
-**選擇自建實現的原因**：更能展示對 RAG 技術的深入理解，包括向量索引設計、相似度算法、檢索策略等核心概念。
+**選擇自建實現的原因**：更能展示對 RAG 技術的深入理解，包括向量索引設計、相似度算法、檢索策略等核心概念，且易於集成到現有的 Agent 模擬循環中。
 
 ---
 
