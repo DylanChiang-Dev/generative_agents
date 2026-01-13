@@ -29,14 +29,14 @@
 
 ### 🧪 測試場景更新
 
-#### 新增 3 人互動測試 (`base_three_person_test`)
+#### 新增 3 人互動測試 (`base_three_person_setup`)
 
 已建立一個專注於 3 位特定角色互動的測試場景，用於驗證多方對話與社交行為。
 
 **包含角色：**
-1. **Tao Chiang**：律師，新增設定為正在撰寫「AI 協助律師」書籍，並支持 Sam Moore 競選市長。
-2. **Sam Moore**：市長候選人，積極進行競選活動。
-3. **Isabella Rodriguez**：Hobbs Cafe 老闆，提供聚會場所。
+1. **Tao Chiang**：婚姻家庭律師，住在 Tao Chiang's house，正在撰寫「AI 協助律師」書籍，並支持 Sam Moore 競選市長。
+2. **Sam Moore**：市長候選人，住在 Moore family's house，積極進行競選活動。
+3. **Isabella Rodriguez**：Hobbs Cafe 老闆，住在 Isabella Rodriguez's apartment，提供聚會場所。
 
 **預設劇情：**
 - 三人設定於早上 **9:00 AM** 在 **Hobbs Cafe** 集合。
@@ -44,8 +44,43 @@
 
 **啟動方式：**
 在 `reverie.py` 啟動時：
-1. `Enter the name of the forked simulation`: **`base_three_person_test`**
+1. `Enter the name of the forked simulation`: **`base_three_person_setup`**
 2. `Enter the name of the new simulation`: [您的自訂名稱]
+
+---
+
+### 🏠 地圖修改：Tao Chiang's house
+
+為了讓 Tao Chiang 擁有獨立的住所，已將地圖中原本的「Yuriko Yamamoto's house」重新命名為「Tao Chiang's house」。
+
+#### 修改的地圖檔案
+
+| 檔案 | 修改內容 |
+|------|----------|
+| `the_ville/matrix/special_blocks/sector_blocks.csv` | `32196, the Ville, Yuriko Yamamoto's house` → `32196, the Ville, Tao Chiang's house` |
+| `the_ville/matrix/special_blocks/arena_blocks.csv` | `32174, the Ville, Yuriko Yamamoto's house, main room` → `32174, the Ville, Tao Chiang's house, main room` |
+| | `32184, the Ville, Yuriko Yamamoto's house, bathroom` → `32184, the Ville, Tao Chiang's house, bathroom` |
+| `the_ville/matrix/special_blocks/spawning_location_blocks.csv` | `32309, the Ville, Yuriko Yamamoto's house, main room, sp-A` → `32309, the Ville, Tao Chiang's house, main room, sp-A` |
+| | `32319, the Ville, Yuriko Yamamoto's house, main room, sp-B` → `32319, the Ville, Tao Chiang's house, main room, sp-B` |
+
+#### 修改的角色檔案 (`base_three_person_setup/personas/Tao Chiang/`)
+
+| 檔案 | 修改內容 |
+|------|----------|
+| `bootstrap_memory/scratch.json` | `living_area`: `"the Ville:Adam Smith's house:main room"` → `"the Ville:Tao Chiang's house:main room"` |
+| `bootstrap_memory/spatial_memory.json` | 將 `"Adam Smith's house"` 區塊重新命名為 `"Tao Chiang's house"` |
+
+#### 修改的環境檔案
+
+| 檔案 | 修改內容 |
+|------|----------|
+| `base_three_person_setup/environment/0.json` | Tao Chiang 初始座標: `(20, 65)` → `(28, 65)` (對應 Tao Chiang's house 的 spawn point) |
+
+#### 房屋結構
+
+Tao Chiang's house 包含以下區域：
+- **main room**: closet, bed, desk, cooking area, kitchen sink, refrigerator
+- **bathroom**: bathroom sink, shower, toilet
 
 ---
 

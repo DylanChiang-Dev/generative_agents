@@ -56,7 +56,11 @@ class MemoryTree:
     EXAMPLE STR OUTPUT
       "bedroom, kitchen, dining room, office, bathroom"
     """
-    x = ", ".join(list(self.tree[curr_world].keys()))
+    try:
+      x = ", ".join(list(self.tree[curr_world].keys()))
+    except KeyError:
+      print(f"[Warning] World not found in spatial memory: {curr_world}")
+      x = ""
     return x
 
 
@@ -76,9 +80,13 @@ class MemoryTree:
       "bedroom, kitchen, dining room, office, bathroom"
     """
     curr_world, curr_sector = sector.split(":")
-    if not curr_sector: 
+    if not curr_sector:
       return ""
-    x = ", ".join(list(self.tree[curr_world][curr_sector].keys()))
+    try:
+      x = ", ".join(list(self.tree[curr_world][curr_sector].keys()))
+    except KeyError:
+      print(f"[Warning] Sector not found in spatial memory: {sector}")
+      x = ""
     return x
 
 
@@ -101,10 +109,15 @@ class MemoryTree:
     if not curr_arena: 
       return ""
 
-    try: 
+    try:
       x = ", ".join(list(self.tree[curr_world][curr_sector][curr_arena]))
-    except: 
-      x = ", ".join(list(self.tree[curr_world][curr_sector][curr_arena.lower()]))
+    except:
+      try:
+        x = ", ".join(list(self.tree[curr_world][curr_sector][curr_arena.lower()]))
+      except:
+        # Arena not found in spatial memory, return empty string
+        print(f"[Warning] Arena not found in spatial memory: {arena}")
+        x = ""
     return x
 
 

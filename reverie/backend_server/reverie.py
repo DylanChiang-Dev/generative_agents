@@ -57,6 +57,11 @@ class ReverieServer:
     sim_folder = f"{fs_storage}/{self.sim_code}"
     copyanything(fork_folder, sim_folder)
 
+    # Ensure movement directory exists
+    movement_folder = f"{sim_folder}/movement"
+    if not os.path.exists(movement_folder):
+      os.makedirs(movement_folder)
+
     with open(f"{sim_folder}/reverie/meta.json") as json_file:  
       reverie_meta = json.load(json_file)
 
