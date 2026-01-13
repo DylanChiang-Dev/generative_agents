@@ -1,8 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 
-from reverie.backend_server.rag.retriever import Retriever
+from .retriever import Retriever
 
 class RAGSystem:
     _instance = None

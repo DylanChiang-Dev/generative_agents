@@ -17,7 +17,7 @@ if root_dir not in sys.path:
 if backend_server_dir not in sys.path:
     sys.path.append(backend_server_dir)
 
-from reverie.backend_server.rag.vector_store import VectorStore
+from .vector_store import VectorStore
 
 # Import get_embedding
 try:
