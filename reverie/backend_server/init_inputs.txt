@@ -1,0 +1,3 @@
+base_three_person_setup
+rag_test_002
+exit

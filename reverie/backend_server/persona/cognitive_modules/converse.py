@@ -2,7 +2,7 @@
 Author: Joon Sung Park (joonspk@stanford.edu)
 
 File: converse.py
-Description: An extra cognitive module for generating conversations. 
+Description: An extra cognitive module for generating conversations.
 """
 import math
 import sys
@@ -11,12 +11,30 @@ import random
 sys.path.append('../')
 
 from global_methods import *
+from rag.rag_interface import RAGSystem
 
 from persona.memory_structures.spatial_memory import *
 from persona.memory_structures.associative_memory import *
 from persona.memory_structures.scratch import *
 from persona.cognitive_modules.retrieve import *
 from persona.prompt_template.run_gpt_prompt import *
+
+
+def check_legal_context_for_conversation(text):
+  """
+  Check if text contains legal keywords and retrieve RAG context if so.
+  """
+  keywords = ["婚姻", "离婚", "财产", "抚养", "收养", "夫妻", "子女",
+              "marriage", "divorce", "custody", "family law", "legal"]
+  for kw in keywords:
+    if kw in text.lower():
+      print(f"[RAG Triggered in Conversation] Found keyword: {kw}")
+      results = RAGSystem.query(text, k=2)
+      if results:
+        context = "\n".join([f"- {r['text'][:200]}" for r in results])
+        print(f"[RAG Context Retrieved] {context[:100]}...")
+        return context
+  return None
 
 def generate_agent_chat_summarize_ideas(init_persona, 
                                         target_persona, 
@@ -123,11 +141,17 @@ def generate_one_utterance(maze, init_persona, target_persona, retrieved, curr_c
 
   return x["utterance"], x["end"]
 
-def agent_chat_v2(maze, init_persona, target_persona): 
+def agent_chat_v2(maze, init_persona, target_persona):
   curr_chat = []
   print ("July 23")
 
-  for i in range(8): 
+  # Check if RAG context is relevant for this conversation
+  conversation_context = init_persona.scratch.act_description + " " + target_persona.scratch.act_description
+  rag_context = check_legal_context_for_conversation(conversation_context)
+  if rag_context:
+    print(f"[RAG] Legal context added to conversation between {init_persona.scratch.name} and {target_persona.scratch.name}")
+
+  for i in range(8):
     focal_points = [f"{target_persona.scratch.name}"]
     retrieved = new_retrieve(init_persona, focal_points, 50)
     relationship = generate_summarize_agent_relationship(init_persona, target_persona, retrieved)
@@ -135,15 +159,25 @@ def agent_chat_v2(maze, init_persona, target_persona):
     last_chat = ""
     for i in curr_chat[-4:]:
       last_chat += ": ".join(i) + "\n"
-    if last_chat: 
-      focal_points = [f"{relationship}", 
-                      f"{target_persona.scratch.name} is {target_persona.scratch.act_description}", 
+    if last_chat:
+      focal_points = [f"{relationship}",
+                      f"{target_persona.scratch.name} is {target_persona.scratch.act_description}",
                       last_chat]
-    else: 
-      focal_points = [f"{relationship}", 
+    else:
+      focal_points = [f"{relationship}",
                       f"{target_persona.scratch.name} is {target_persona.scratch.act_description}"]
+
+    # Add RAG context to focal points if available
+    if rag_context:
+      focal_points.append(f"Relevant legal knowledge: {rag_context[:500]}")
+
     retrieved = new_retrieve(init_persona, focal_points, 15)
     utt, end = generate_one_utterance(maze, init_persona, target_persona, retrieved, curr_chat)
+
+    # Check if the utterance triggers RAG
+    utt_rag_context = check_legal_context_for_conversation(utt)
+    if utt_rag_context and not rag_context:
+      rag_context = utt_rag_context
 
     curr_chat += [[init_persona.scratch.name, utt]]
     if end:
@@ -157,22 +191,32 @@ def agent_chat_v2(maze, init_persona, target_persona):
     last_chat = ""
     for i in curr_chat[-4:]:
       last_chat += ": ".join(i) + "\n"
-    if last_chat: 
-      focal_points = [f"{relationship}", 
-                      f"{init_persona.scratch.name} is {init_persona.scratch.act_description}", 
+    if last_chat:
+      focal_points = [f"{relationship}",
+                      f"{init_persona.scratch.name} is {init_persona.scratch.act_description}",
                       last_chat]
-    else: 
-      focal_points = [f"{relationship}", 
+    else:
+      focal_points = [f"{relationship}",
                       f"{init_persona.scratch.name} is {init_persona.scratch.act_description}"]
+
+    # Add RAG context to focal points if available
+    if rag_context:
+      focal_points.append(f"Relevant legal knowledge: {rag_context[:500]}")
+
     retrieved = new_retrieve(target_persona, focal_points, 15)
     utt, end = generate_one_utterance(maze, target_persona, init_persona, retrieved, curr_chat)
+
+    # Check if the utterance triggers RAG
+    utt_rag_context = check_legal_context_for_conversation(utt)
+    if utt_rag_context and not rag_context:
+      rag_context = utt_rag_context
 
     curr_chat += [[target_persona.scratch.name, utt]]
     if end:
       break
 
   print ("July 23 PU")
-  for row in curr_chat: 
+  for row in curr_chat:
     print (row)
   print ("July 23 FIN")
 

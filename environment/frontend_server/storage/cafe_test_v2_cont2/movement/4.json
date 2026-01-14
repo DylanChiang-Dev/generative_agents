@@ -1,0 +1,34 @@
+{
+  "persona": {
+    "Tao Chiang": {
+      "movement": [
+        30,
+        68
+      ],
+      "pronunciatio": "\ud83d\udecf\ufe0f\ud83e\uddd6",
+      "description": "waking up and getting ready @ the Ville:Tao Chiang's house:bathroom:bathroom sink",
+      "chat": null
+    },
+    "Isabella Rodriguez": {
+      "movement": [
+        77,
+        14
+      ],
+      "pronunciatio": "\ud83d\udeaa\u2615",
+      "description": "opening and preparing Hobbs Cafe @ the Ville:Hobbs Cafe:cafe:behind the cafe counter",
+      "chat": null
+    },
+    "Sam Moore": {
+      "movement": [
+        37,
+        61
+      ],
+      "pronunciatio": "1\ufe0f\u20e3",
+      "description": "meeting with Tao Chiang and Isabella Rodriguez at Hobbs Cafe to discuss mayoral campaign (1) Sam is greeting Tao Chiang and Isabella Rodriguez, exchanging warm Valentine\u2019s Day wishes, and settling into a booth at Hobbs Cafe) @ the Ville:Hobbs Cafe:cafe:cafe customer seating",
+      "chat": null
+    }
+  },
+  "meta": {
+    "curr_time": "February 14, 2025, 07:30:40"
+  }
+}

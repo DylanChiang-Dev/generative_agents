@@ -1,0 +1,34 @@
+{
+  "node_1": {
+    "node_count": 1,
+    "type_count": 1,
+    "type": "thought",
+    "depth": 1,
+    "created": "2025-02-13 20:00:00",
+    "expiration": "2025-03-15 00:00:00",
+    "subject": "Tao Chiang",
+    "predicate": "plan to meet",
+    "object": "Sam Moore and Isabella Rodriguez",
+    "description": "Tao Chiang called Sam Moore yesterday evening and they agreed to meet at Hobbs Cafe at 8am on February 14th to discuss Sam's mayoral campaign strategies. Isabella will also join them since the meeting is at her cafe.",
+    "embedding_key": "Tao Chiang called Sam Moore yesterday evening and they agreed to meet at Hobbs Cafe at 8am on February 14th to discuss Sam's mayoral campaign strategies. Isabella will also join them since the meeting is at her cafe.",
+    "poignancy": 7,
+    "keywords": ["meeting", "Hobbs Cafe", "campaign", "Sam Moore", "Isabella Rodriguez"],
+    "filling": null
+  },
+  "node_2": {
+    "node_count": 2,
+    "type_count": 2,
+    "type": "thought",
+    "depth": 1,
+    "created": "2025-02-13 21:00:00",
+    "expiration": "2025-03-15 00:00:00",
+    "subject": "Tao Chiang",
+    "predicate": "want to help",
+    "object": "Sam Moore's campaign",
+    "description": "Tao Chiang believes Sam Moore would make an excellent mayor for the Ville. He wants to use his analytical skills to help develop a winning campaign strategy.",
+    "embedding_key": "Tao Chiang believes Sam Moore would make an excellent mayor for the Ville. He wants to use his analytical skills to help develop a winning campaign strategy.",
+    "poignancy": 6,
+    "keywords": ["mayor", "campaign", "support", "Sam Moore"],
+    "filling": null
+  }
+}

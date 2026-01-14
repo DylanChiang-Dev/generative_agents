@@ -184,6 +184,95 @@ Query: 离婚时财产如何分割？
 - 當 Agent 思考內容包含「婚姻」、「离婚」、「财产」、「抚养」等關鍵詞時，自動觸發 RAG。
 - 檢索到的法律條文會注入到 Agent 的 Context 中，輔助決策。
 
+---
+
+## 📊 模擬實驗記錄：rag_test_002
+
+### 劇本設計
+
+本實驗設計了一個三人會面場景，用於測試 RAG 系統在多人對話中的觸發與整合能力。
+
+#### 角色設定
+
+| 角色 | 年齡 | 身份 | 性格特質 |
+|------|------|------|----------|
+| **Tao Chiang** | 35 | 婚姻家庭律師，十年執業經驗 | 善解人意、耐心、值得信賴、分析力強 |
+| **Sam Moore** | 65 | 退役海軍軍官，市長候選人 | 智慧、足智多謀、幽默 |
+| **Isabella Rodriguez** | 34 | Hobbs Cafe 咖啡店老闆 | 友善、外向、好客 |
+
+#### 劇情大綱
+
+**時間**：2025 年 2 月 14 日（情人節）早上 8:00
+
+**地點**：Hobbs Cafe
+
+**會議目的**：
+1. **Sam 的市長競選策略**：討論如何贏得選民支持
+2. **法律諮詢**：Isabella 想為一位朋友諮詢離婚和撫養權問題 ← **RAG 觸發點**
+3. **社區活動**：邀請大家幫忙宣傳當日下午 5 點的情人節派對
+
+#### 各角色每日計劃
+
+**Tao Chiang**：
+> 早上 8 點去 Hobbs Cafe 與 Sam 和 Isabella 會面討論競選策略。10 點回家處理客戶諮詢至中午，下午 2 點到 6 點處理法律案件。
+
+**Sam Moore**：
+> 早上 5 點起床，與妻子 Jennifer 共進早餐後步行到 Hobbs Cafe 開會。會後在 Johnson Park 散步，並與鄰居交流競選理念。
+
+**Isabella Rodriguez**：
+> 早上 7:30 開店準備，8 點主持三人會議，同時詢問 Tao 關於朋友離婚和撫養權的法律意見。全天經營咖啡店至晚上 8 點。
+
+### RAG 調用實例
+
+在模擬過程中，當 Isabella 提到「離婚和撫養權問題」時，系統自動觸發 RAG 檢索：
+
+**觸發對話**：
+> "Hey you two, so glad you're here bright and early! ... I have a quick legal question for Tao about **a friend's divorce and custody situation**..."
+
+**檢索結果**：
+
+| 來源 | 相關性分數 | 法律條文 |
+|------|-----------|----------|
+| `marriage_law.txt` Chunk 1 | 0.170 | 第 1076 條（離婚協議）、第 1079 條（離婚訴訟程序） |
+| `marriage_law.txt` Chunk 0 | 0.156 | 第 1040-1062 條（婚姻家庭一般規定、共同財產） |
+
+這些法律條文被注入到 Tao Chiang 的上下文中，使他能夠提供專業的法律建議。
+
+### 模擬統計
+
+| 指標 | 數值 |
+|------|------|
+| 總對話記錄 | 724 條 |
+| RAG 調用次數 | 1 次 |
+| 模擬時長 | 約 7 小時（模擬時間） |
+| 主要討論主題 | 市長競選策略、小企業許可費改革、人行道安全試點計劃 |
+
+### 存儲位置
+
+對話記錄和模擬數據存放於以下位置：
+
+```
+generative_agents/                              # 專案根目錄
+├── rag_dialogue.md                            # 📝 已提取的完整對話記錄 (724 條)
+│
+└── environment/frontend_server/storage/rag_test_002/
+    ├── README.md                               # 模擬說明文件
+    ├── rag_log.jsonl                           # RAG 調用日誌
+    ├── movement/                               # 442 個時間步的狀態與對話 JSON
+    │   ├── 1.json ... 442.json                 # 每個時間步的完整狀態
+    │   └── (chat 字段記錄對話內容)
+    ├── personas/                               # 角色記憶數據
+    │   ├── Tao Chiang/bootstrap_memory/
+    │   ├── Sam Moore/bootstrap_memory/
+    │   └── Isabella Rodriguez/bootstrap_memory/
+    └── environment/                            # 環境狀態快照
+```
+
+**文件說明**：
+- `rag_dialogue.md`：從 movement JSON 中提取的所有對話，格式化為 Markdown 方便閱讀
+- `movement/*.json`：原始對話數據，`chat` 字段包含對話列表，`null` 表示該時間步無對話
+- `rag_log.jsonl`：記錄 RAG 系統被觸發的時間、查詢內容和檢索結果
+
 ### 如何測試
 
 本專案包含一個端到端的測試腳本，可用於驗證 RAG 系統狀態：

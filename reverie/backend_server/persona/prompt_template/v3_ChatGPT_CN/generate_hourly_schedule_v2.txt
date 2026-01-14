@@ -1,0 +1,7 @@
+每小时日程格式：
+!<INPUT 0>!
+===
+!<INPUT 1>!
+!<INPUT 2>!
+!<INPUT 3>!!<INPUT 4>!
+!<INPUT 5>!

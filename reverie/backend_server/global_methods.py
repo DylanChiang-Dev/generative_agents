@@ -210,15 +210,15 @@ def std(list_of_val):
 
 def copyanything(src, dst):
   """
-  Copy over everything in the src folder to dst folder. 
+  Copy over everything in the src folder to dst folder.
   ARGS:
-    src: address of the source folder  
-    dst: address of the destination folder  
-  RETURNS: 
+    src: address of the source folder
+    dst: address of the destination folder
+  RETURNS:
     None
   """
   try:
-    shutil.copytree(src, dst)
+    shutil.copytree(src, dst, dirs_exist_ok=True)
   except OSError as exc: # python >2.5
     if exc.errno in (errno.ENOTDIR, errno.EINVAL):
       shutil.copy(src, dst)

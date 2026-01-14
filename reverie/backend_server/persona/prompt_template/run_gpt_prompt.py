@@ -138,10 +138,10 @@ def run_gpt_prompt_daily_plan(persona,
 
 
   
-  gpt_param = {"max_tokens": 500, 
+  gpt_param = {"max_tokens": 500,
                "temperature": 1, "top_p": 1, "stream": False,
                "frequency_penalty": 0, "presence_penalty": 0, "stop": None}
-  prompt_template = "persona/prompt_template/v2/daily_planning_v6.txt"
+  prompt_template = "persona/prompt_template/v3_ChatGPT/daily_planning_v6.txt"
   prompt_input = create_prompt_input(persona, wake_up_hour, test_input)
   prompt = generate_prompt(prompt_input, prompt_template)
   fail_safe = get_fail_safe()
@@ -265,14 +265,14 @@ def run_gpt_prompt_generate_hourly_schedule(persona,
   # # ChatGPT Plugin ===========================================================
 
 
-  gpt_param = {"max_tokens": 50, 
+  gpt_param = {"max_tokens": 50,
                "temperature": 0.5, "top_p": 1, "stream": False,
                "frequency_penalty": 0, "presence_penalty": 0, "stop": ["\n"]}
-  prompt_template = "persona/prompt_template/v2/generate_hourly_schedule_v2.txt"
-  prompt_input = create_prompt_input(persona, 
-                                     curr_hour_str, 
+  prompt_template = "persona/prompt_template/v3_ChatGPT/generate_hourly_schedule_v2.txt"
+  prompt_input = create_prompt_input(persona,
+                                     curr_hour_str,
                                      p_f_ds_hourly_org,
-                                     hour_str, 
+                                     hour_str,
                                      intermission2,
                                      test_input)
   prompt = generate_prompt(prompt_input, prompt_template)
@@ -884,13 +884,16 @@ def run_gpt_prompt_event_triple(action_description, persona, verbose=False):
   
   def __func_clean_up(gpt_response, prompt=""):
     cr = gpt_response.strip()
-    cr = [i.strip() for i in cr.split(")")[0].split(",")]
+    if cr.startswith("("): cr = cr[1:]
+    cr = cr.split(")")[0]
+    cr = [i.strip() for i in cr.split(",")]
+    if len(cr) == 3: return cr[1:]
     return cr
 
-  def __func_validate(gpt_response, prompt=""): 
-    try: 
+  def __func_validate(gpt_response, prompt=""):
+    try:
       gpt_response = __func_clean_up(gpt_response, prompt="")
-      if len(gpt_response) != 2: 
+      if len(gpt_response) != 2:
         return False
     except: return False
     return True 
@@ -1051,13 +1054,16 @@ def run_gpt_prompt_act_obj_event_triple(act_game_object, act_obj_desc, persona, 
   
   def __func_clean_up(gpt_response, prompt=""):
     cr = gpt_response.strip()
-    cr = [i.strip() for i in cr.split(")")[0].split(",")]
+    if cr.startswith("("): cr = cr[1:]
+    cr = cr.split(")")[0]
+    cr = [i.strip() for i in cr.split(",")]
+    if len(cr) == 3: return cr[1:]
     return cr
 
-  def __func_validate(gpt_response, prompt=""): 
-    try: 
+  def __func_validate(gpt_response, prompt=""):
+    try:
       gpt_response = __func_clean_up(gpt_response, prompt="")
-      if len(gpt_response) != 2: 
+      if len(gpt_response) != 2:
         return False
     except: return False
     return True 
@@ -1320,10 +1326,10 @@ def run_gpt_prompt_decide_to_talk(persona, target_persona, retrieved,test_input=
 
 
 
-  gpt_param = {"max_tokens": 20, 
+  gpt_param = {"max_tokens": 20,
                "temperature": 0, "top_p": 1, "stream": False,
                "frequency_penalty": 0, "presence_penalty": 0, "stop": None}
-  prompt_template = "persona/prompt_template/v2/decide_to_talk_v2.txt"
+  prompt_template = "persona/prompt_template/v3_ChatGPT/decide_to_talk_v2.txt"
   prompt_input = create_prompt_input(persona, target_persona, retrieved,
                                      test_input)
   prompt = generate_prompt(prompt_input, prompt_template)

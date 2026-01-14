@@ -1,0 +1,34 @@
+{
+  "persona": {
+    "Tao Chiang": {
+      "movement": [
+        29,
+        61
+      ],
+      "pronunciatio": "\ud83d\udc55\ud83d\udc56",
+      "description": "getting dressed @ the Ville:Tao Chiang's house:main room:closet",
+      "chat": null
+    },
+    "Isabella Rodriguez": {
+      "movement": [
+        78,
+        19
+      ],
+      "pronunciatio": "\u2615\ud83d\udd27",
+      "description": "preparing coffee machines and setting up @ the Ville:Hobbs Cafe:cafe:behind the cafe counter",
+      "chat": null
+    },
+    "Sam Moore": {
+      "movement": [
+        38,
+        39
+      ],
+      "pronunciatio": "\ud83d\udc42\ud83e\udde0",
+      "description": "listening to Tao's strategic advice @ the Ville:Hobbs Cafe:cafe:behind the cafe counter",
+      "chat": null
+    }
+  },
+  "meta": {
+    "curr_time": "February 14, 2025, 07:34:30"
+  }
+}

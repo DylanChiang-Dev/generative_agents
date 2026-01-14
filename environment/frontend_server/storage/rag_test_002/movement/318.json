@@ -1,0 +1,34 @@
+{
+  "persona": {
+    "Tao Chiang": {
+      "movement": [
+        79,
+        25
+      ],
+      "pronunciatio": "\ud83d\udeb6\u2615",
+      "description": "walking to Hobbs Cafe @ the Ville:Hobbs Cafe:cafe:cafe customer seating",
+      "chat": null
+    },
+    "Isabella Rodriguez": {
+      "movement": [
+        76,
+        22
+      ],
+      "pronunciatio": "\ud83e\uddf9\ud83d\udce6",
+      "description": "cleaning tables and organizing @ the Ville:Hobbs Cafe:cafe:cafe customer seating",
+      "chat": null
+    },
+    "Sam Moore": {
+      "movement": [
+        75,
+        20
+      ],
+      "pronunciatio": "\ud83d\udcde\ud83d\udc65",
+      "description": "making phone calls to supporters @ the Ville:Hobbs Cafe:cafe:behind the cafe counter",
+      "chat": null
+    }
+  },
+  "meta": {
+    "curr_time": "February 14, 2025, 08:23:00"
+  }
+}

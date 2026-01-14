@@ -1,0 +1,13 @@
+{
+  "fork_sim_code": "cafe_test",
+  "start_date": "February 14, 2025",
+  "curr_time": "February 14, 2025, 07:30:00",
+  "sec_per_step": 10,
+  "maze_name": "the_ville",
+  "persona_names": [
+    "Tao Chiang",
+    "Isabella Rodriguez",
+    "Sam Moore"
+  ],
+  "step": 0
+}

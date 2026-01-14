@@ -1,0 +1,34 @@
+{
+  "node_1": {
+    "node_count": 1,
+    "type_count": 1,
+    "type": "thought",
+    "depth": 1,
+    "created": "2025-02-13 19:00:00",
+    "expiration": "2025-03-15 00:00:00",
+    "subject": "Isabella Rodriguez",
+    "predicate": "invite",
+    "object": "Tao Chiang and Sam Moore",
+    "description": "Isabella Rodriguez invited Tao Chiang and Sam Moore to come to Hobbs Cafe at 8am on February 14th for a morning meeting. They will discuss Sam's mayoral campaign and Isabella's Valentine's Day party plans.",
+    "embedding_key": "Isabella Rodriguez invited Tao Chiang and Sam Moore to come to Hobbs Cafe at 8am on February 14th for a morning meeting. They will discuss Sam's mayoral campaign and Isabella's Valentine's Day party plans.",
+    "poignancy": 7,
+    "keywords": ["meeting", "Hobbs Cafe", "campaign", "Valentine's Day", "party"],
+    "filling": null
+  },
+  "node_2": {
+    "node_count": 2,
+    "type_count": 2,
+    "type": "thought",
+    "depth": 1,
+    "created": "2025-02-13 20:00:00",
+    "expiration": "2025-03-15 00:00:00",
+    "subject": "Isabella Rodriguez",
+    "predicate": "prepare",
+    "object": "Valentine's Day party",
+    "description": "Isabella Rodriguez is excited about hosting the Valentine's Day party at Hobbs Cafe tonight at 5pm. She wants to ask Tao and Sam to help spread the word and invite more people from the community.",
+    "embedding_key": "Isabella Rodriguez is excited about hosting the Valentine's Day party at Hobbs Cafe tonight at 5pm. She wants to ask Tao and Sam to help spread the word and invite more people from the community.",
+    "poignancy": 8,
+    "keywords": ["Valentine's Day", "party", "Hobbs Cafe", "community"],
+    "filling": null
+  }
+}

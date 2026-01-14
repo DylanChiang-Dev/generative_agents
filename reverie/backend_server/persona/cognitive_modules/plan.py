@@ -468,33 +468,40 @@ def _long_term_planning(persona, new_day):
              "New day", or False (for neither). This is important because we
              create the personas' long term planning on the new day. 
   """
-  # We start by creating the wake up hour for the persona. 
-  wake_up_hour = generate_wake_up_hour(persona)
+  # Check if schedule is pre-populated (skip expensive LLM generation)
+  if persona.scratch.f_daily_schedule and len(persona.scratch.f_daily_schedule) > 0:
+    print(f"[SKIP] Using pre-populated schedule for {persona.scratch.name}")
+    # Schedule already exists, skip generation
+    if not persona.scratch.f_daily_schedule_hourly_org:
+      persona.scratch.f_daily_schedule_hourly_org = persona.scratch.f_daily_schedule[:]
+  else:
+    # We start by creating the wake up hour for the persona.
+    wake_up_hour = generate_wake_up_hour(persona)
 
-  # When it is a new day, we start by creating the daily_req of the persona.
-  # Note that the daily_req is a list of strings that describe the persona's
-  # day in broad strokes.
-  if new_day == "First day": 
-    # Bootstrapping the daily plan for the start of then generation:
-    # if this is the start of generation (so there is no previous day's 
-    # daily requirement, or if we are on a new day, we want to create a new
-    # set of daily requirements.
-    persona.scratch.daily_req = generate_first_daily_plan(persona, 
-                                                          wake_up_hour)
-  elif new_day == "New day":
-    revise_identity(persona)
+    # When it is a new day, we start by creating the daily_req of the persona.
+    # Note that the daily_req is a list of strings that describe the persona's
+    # day in broad strokes.
+    if new_day == "First day":
+      # Bootstrapping the daily plan for the start of then generation:
+      # if this is the start of generation (so there is no previous day's
+      # daily requirement, or if we are on a new day, we want to create a new
+      # set of daily requirements.
+      persona.scratch.daily_req = generate_first_daily_plan(persona,
+                                                            wake_up_hour)
+    elif new_day == "New day":
+      revise_identity(persona)
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - TODO
-    # We need to create a new daily_req here...
-    persona.scratch.daily_req = persona.scratch.daily_req
+      # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - TODO
+      # We need to create a new daily_req here...
+      persona.scratch.daily_req = persona.scratch.daily_req
 
-  # Based on the daily_req, we create an hourly schedule for the persona, 
-  # which is a list of todo items with a time duration (in minutes) that 
-  # add up to 24 hours.
-  persona.scratch.f_daily_schedule = generate_hourly_schedule(persona, 
-                                                              wake_up_hour)
-  persona.scratch.f_daily_schedule_hourly_org = (persona.scratch
-                                                   .f_daily_schedule[:])
+    # Based on the daily_req, we create an hourly schedule for the persona,
+    # which is a list of todo items with a time duration (in minutes) that
+    # add up to 24 hours.
+    persona.scratch.f_daily_schedule = generate_hourly_schedule(persona,
+                                                                wake_up_hour)
+    persona.scratch.f_daily_schedule_hourly_org = (persona.scratch
+                                                     .f_daily_schedule[:])
 
 
   # Added March 4 -- adding plan to the memory.
@@ -534,20 +541,25 @@ def _determine_action(persona, maze):
     """
     Given an action description and its duration, we determine whether we need
     to decompose it. If the action is about the agent sleeping, we generally
-    do not want to decompose it, so that's what we catch here. 
+    do not want to decompose it, so that's what we catch here.
 
-    INPUT: 
+    INPUT:
       act_desp: the description of the action (e.g., "sleeping")
-      act_dura: the duration of the action in minutes. 
-    OUTPUT: 
-      a boolean. True if we need to decompose, False otherwise. 
+      act_dura: the duration of the action in minutes.
+    OUTPUT:
+      a boolean. True if we need to decompose, False otherwise.
     """
-    if "sleep" not in act_desp and "bed" not in act_desp: 
-      return True
-    elif "sleeping" in act_desp or "asleep" in act_desp or "in bed" in act_desp:
+    # OPTIMIZATION: Skip decomposition for tasks that are already fine-grained (<=60 min)
+    # This allows pre-decomposed schedules to skip LLM calls
+    if act_dura <= 60:
       return False
-    elif "sleep" in act_desp or "bed" in act_desp: 
-      if act_dura > 60: 
+    # Skip decomposition for sleeping
+    if "sleep" not in act_desp and "bed" not in act_desp and "睡觉" not in act_desp and "休息" not in act_desp and "睡眠" not in act_desp:
+      return True
+    elif "sleeping" in act_desp or "asleep" in act_desp or "in bed" in act_desp or "睡觉" in act_desp or "休息" in act_desp or "睡眠" in act_desp:
+      return False
+    elif "sleep" in act_desp or "bed" in act_desp or "睡觉" in act_desp or "休息" in act_desp or "睡眠" in act_desp:
+      if act_dura > 60:
         return False
     return True
 
@@ -719,8 +731,10 @@ def _should_react(persona, retrieved, personas):
         or not init_persona.scratch.act_description): 
       return False
 
-    if ("sleeping" in target_persona.scratch.act_description 
-        or "sleeping" in init_persona.scratch.act_description): 
+    if ("sleeping" in target_persona.scratch.act_description
+        or "sleeping" in init_persona.scratch.act_description
+        or "睡觉" in target_persona.scratch.act_description
+        or "睡觉" in init_persona.scratch.act_description): 
       return False
 
     if init_persona.scratch.curr_time.hour == 23: 
@@ -750,8 +764,10 @@ def _should_react(persona, retrieved, personas):
         or not init_persona.scratch.act_description): 
       return False
 
-    if ("sleeping" in target_persona.scratch.act_description 
-        or "sleeping" in init_persona.scratch.act_description): 
+    if ("sleeping" in target_persona.scratch.act_description
+        or "sleeping" in init_persona.scratch.act_description
+        or "睡觉" in target_persona.scratch.act_description
+        or "睡觉" in init_persona.scratch.act_description): 
       return False
 
     # return False
@@ -811,19 +827,24 @@ def _create_react(persona, inserted_act, inserted_act_dur,
   p = persona 
 
   min_sum = 0
-  for i in range (p.scratch.get_f_daily_schedule_hourly_org_index()): 
+  for i in range (p.scratch.get_f_daily_schedule_hourly_org_index()):
     min_sum += p.scratch.f_daily_schedule_hourly_org[i][1]
   start_hour = int (min_sum/60)
 
-  if (p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()][1] >= 120):
-    end_hour = start_hour + p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()][1]/60
+  # Boundary check to prevent index out of range
+  hourly_org_index = p.scratch.get_f_daily_schedule_hourly_org_index()
+  hourly_org_len = len(p.scratch.f_daily_schedule_hourly_org)
 
-  elif (p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()][1] + 
-      p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()+1][1]): 
-    end_hour = start_hour + ((p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()][1] + 
-              p.scratch.f_daily_schedule_hourly_org[p.scratch.get_f_daily_schedule_hourly_org_index()+1][1])/60)
-
-  else: 
+  if hourly_org_index >= hourly_org_len:
+    end_hour = start_hour + 2
+  elif (p.scratch.f_daily_schedule_hourly_org[hourly_org_index][1] >= 120):
+    end_hour = start_hour + p.scratch.f_daily_schedule_hourly_org[hourly_org_index][1]/60
+  elif (hourly_org_index + 1 < hourly_org_len and
+        p.scratch.f_daily_schedule_hourly_org[hourly_org_index][1] +
+        p.scratch.f_daily_schedule_hourly_org[hourly_org_index+1][1]):
+    end_hour = start_hour + ((p.scratch.f_daily_schedule_hourly_org[hourly_org_index][1] +
+              p.scratch.f_daily_schedule_hourly_org[hourly_org_index+1][1])/60)
+  else:
     end_hour = start_hour + 2
   end_hour = int(end_hour)
 
@@ -839,9 +860,12 @@ def _create_react(persona, inserted_act, inserted_act_dur,
     dur_sum += dur
     count += 1
 
-  ret = generate_new_decomp_schedule(p, inserted_act, inserted_act_dur, 
-                                       start_hour, end_hour)
-  p.scratch.f_daily_schedule[start_index:end_index] = ret
+  # ret = generate_new_decomp_schedule(p, inserted_act, inserted_act_dur,
+  #                                        start_hour, end_hour)
+  # p.scratch.f_daily_schedule[start_index:end_index] = ret
+  # Simplified: Directly insert the activity without further decomposition
+  # This avoids LLM call for generate_new_decomp_schedule
+  p.scratch.f_daily_schedule[start_index:end_index] = [[inserted_act, inserted_act_dur]]
   p.scratch.add_new_action(act_address,
                            inserted_act_dur,
                            inserted_act,

@@ -34,28 +34,32 @@ from global_methods import *
 from utils import *
 from maze import *
 from persona.persona import *
+from rag.rag_interface import RAGSystem
 
 ##############################################################################
 #                                  REVERIE                                   #
 ##############################################################################
 
-class ReverieServer: 
-  def __init__(self, 
+class ReverieServer:
+  def __init__(self,
                fork_sim_code,
                sim_code):
     # FORKING FROM A PRIOR SIMULATION:
-    # <fork_sim_code> indicates the simulation we are forking from. 
-    # Interestingly, all simulations must be forked from some initial 
+    # <fork_sim_code> indicates the simulation we are forking from.
+    # Interestingly, all simulations must be forked from some initial
     # simulation, where the first simulation is "hand-crafted".
     self.fork_sim_code = fork_sim_code
     fork_folder = f"{fs_storage}/{self.fork_sim_code}"
 
-    # <sim_code> indicates our current simulation. The first step here is to 
-    # copy everything that's in <fork_sim_code>, but edit its 
-    # reverie/meta/json's fork variable. 
+    # <sim_code> indicates our current simulation. The first step here is to
+    # copy everything that's in <fork_sim_code>, but edit its
+    # reverie/meta/json's fork variable.
     self.sim_code = sim_code
     sim_folder = f"{fs_storage}/{self.sim_code}"
     copyanything(fork_folder, sim_folder)
+
+    # Initialize RAG logging
+    RAGSystem.set_log_filepath(f"{sim_folder}/rag_log.jsonl")
 
     # Ensure movement directory exists
     movement_folder = f"{sim_folder}/movement"
@@ -406,14 +410,20 @@ class ReverieServer:
           with open(curr_move_file, "w") as outfile: 
             outfile.write(json.dumps(movements, indent=2))
 
-          # After this cycle, the world takes one step forward, and the 
-          # current time moves by <sec_per_step> amount. 
+          # After this cycle, the world takes one step forward, and the
+          # current time moves by <sec_per_step> amount.
           self.step += 1
           self.curr_time += datetime.timedelta(seconds=self.sec_per_step)
 
+          # Update curr_step.json for frontend real-time sync
+          curr_step = dict()
+          curr_step["step"] = self.step
+          with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile:
+            outfile.write(json.dumps(curr_step, indent=2))
+
           int_counter -= 1
-          
-      # Sleep so we don't burn our machines. 
+
+      # Sleep so we don't burn our machines.
       time.sleep(self.server_sleep)
 
 
